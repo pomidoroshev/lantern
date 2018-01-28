@@ -7,12 +7,12 @@ import asyncio
 
 from xtermcolor import colorize
 
-from utils import cmd, Manageable
+from utils import cmd, TCPClientProtocol
 
 
-class Lantern(Manageable):
+class LanternProtocol(TCPClientProtocol):
     """
-    Lantern class with set of commands:
+    Lantern protocol with set of commands:
     0x12 - turn lantern on
     0x13 - turn lantern off
     0x20 - change lantern color
@@ -20,17 +20,13 @@ class Lantern(Manageable):
     Lantern is on and red by default
     """
 
-    def __init__(self, is_on=True, color=0xff0000):
-        self._is_on = is_on
-        self._color_rgb = color
+    _is_on = True
+    _color_rgb = 0xff0000
 
-    async def listen(self, *args, **kwargs):
-        """
-        Show current lantern state berore listen
-        """
+    def __init__(self, loop):
+        super().__init__(loop)
         self.refresh()
-        await super().listen(*args, **kwargs)
-
+    
     def refresh(self):
         """
         Print new lantern icon with current parameters
@@ -41,7 +37,7 @@ class Lantern(Manageable):
             print('\u2B55')
 
     @cmd(0x12)
-    async def on(self):
+    def on(self):
         """
         Turn lantern on
         """
@@ -49,7 +45,7 @@ class Lantern(Manageable):
         self.refresh()
 
     @cmd(0x13)
-    async def off(self):
+    def off(self):
         """
         Turn lantern off
         """
@@ -57,7 +53,7 @@ class Lantern(Manageable):
         self.refresh()
 
     @cmd(0x20)
-    async def color(self, value: bytes):
+    def color(self, value: bytes):
         """
         Change lantern color
         """
@@ -67,17 +63,19 @@ class Lantern(Manageable):
 
 
 def main():
-    loop = asyncio.get_event_loop()
-    lantern = Lantern()
-
     parser = argparse.ArgumentParser(description='Lantern TCP Client')
     parser.add_argument('host', type=str, default='127.0.0.1', nargs='?',
                         help='Server host, default is %(default)s')
     parser.add_argument('port', type=int, default=9999, nargs='?',
                         help='Server port, default is %(default)s')
     args = parser.parse_args()
-    loop.run_until_complete(lantern.listen(args.host, args.port, loop=loop))
 
+    loop = asyncio.get_event_loop()
+    coro = loop.create_connection(lambda: LanternProtocol(loop),
+                                  args.host, args.port)
+    loop.run_until_complete(coro)
+    loop.run_forever()
+    loop.close()
 
 if __name__ == '__main__':
     main()

@@ -26,21 +26,19 @@ class LanternServerProtocol(asyncio.Protocol):
             # Unknown command
             bytearray([0xee, 0x00, 0x00]),
 
-            # Unknown command
-            bytearray([0xee, 0x00, 0x00]),
-
-            # Switch color to blue
+            # Change color to blue
             bytearray([0x20, 0x00, 0x03, 0x00, 0x00, 0xff]),
 
-            # Switch color to red
+            # Change color to red
             bytearray([0x20, 0x00, 0x03, 0xff, 0x00, 0x00]),
 
-            # Switch color to green
+            # Change color to green
             bytearray([0x20, 0x00, 0x03, 0x00, 0xff, 0x00]),
         ]
 
         for command in commands:
             self.transport.write(command)
+            input('Press Enter to send next command')
 
     def connection_lost(self, exc):
         print('Lost connection of', self.peername)

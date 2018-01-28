@@ -18,41 +18,47 @@ def cmd(code):
     return _cmd
 
 
-class Manageable:
-    """
-    Base class for manageable devices
-    """
-    async def listen(self, host, port, *, loop):
-        """
-        Connect to server and listen to commands
-        """
-        reader, _ = await asyncio.open_connection(host, port, loop=loop)
-        while True:
-            await self.execute_command(reader)
+class TCPClientProtocol(asyncio.Protocol):
+    def __init__(self, loop):
+        self.loop = loop
 
-    async def execute_command(self, reader):
+    def data_received(self, data: bytes):
         """
-        Execute class command
+        Get data and execute commands
         """
-        type_, value = await self.get_tlv(reader)
-        command_code = ord(type_)
+        for command_code, value in self.parse_tlv(data):
+            self.execute(command_code, value)
+
+    def parse_tlv(self, data: bytes):
+        """
+        Parse and yield TLV-commands from data buffer
+        """
+        start = 0
+        while True:
+            tmp = data[start:]
+            if not tmp:
+                break
+            command_code = tmp[0]
+            value = None
+
+            length = tmp[1:3]
+            length = int.from_bytes(length, byteorder='big')
+            if length > 0:
+                value = tmp[3:length+3]
+            yield command_code, value
+            start += length + 3
+
+    def execute(self, command_code, value):
+        """
+        Find and execute device command by its code
+        """
         class_commands = cmd.commands[self.__class__.__name__]
         if command_code in class_commands:
             method = class_commands[command_code]
             args = []
             if value is not None:
                 args.append(value)
-            await method(self, *args)
+            method(self, *args)
 
-    async def get_tlv(self, reader):
-        """
-        Parse TLV-command and get type and value
-        """
-        type_ = await reader.read(1)
-        if type_:
-            value = None
-            length = await reader.read(2)
-            length = int.from_bytes(length, byteorder='big')
-            if length > 0:
-                value = await reader.read(length)
-            return type_, value
+    def connection_lost(self, exc):
+        self.loop.stop()
