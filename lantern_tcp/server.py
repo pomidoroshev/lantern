@@ -11,7 +11,7 @@ class LanternServerProtocol(asyncio.Protocol):
         commands = [
             # Turn off
             bytearray([0x13, 0x00, 0x00]),
-            
+
             # Turn on
             bytearray([0x12, 0x00, 0x00]),
 
@@ -56,6 +56,7 @@ def main():
     server.close()
     loop.run_until_complete(server.wait_closed())
     loop.close()
+
 
 if __name__ == '__main__':
     main()
