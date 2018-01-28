@@ -49,6 +49,9 @@ optional arguments:
   -h, --help  show this help message and exit
 ```
 
+## Screenshot
+![Lantern](https://github.com/pomidoroshev/lantern/blob/master/screenshot.png)
+
 ## Adding new commands
 
 If you want to add a new external command, e.g. `BLINK` with `type = 0x30`, you should add a method to [`LanternProtocol`](https://github.com/pomidoroshev/lantern/blob/master/lantern_tcp/lantern.py) decorated with `@cmd`:
