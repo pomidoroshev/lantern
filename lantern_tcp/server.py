@@ -5,7 +5,7 @@ Demo-server for lantern
 import argparse
 import asyncio
 
-from settings import HOST, PORT
+from .settings import HOST, PORT
 
 
 class LanternServerProtocol(asyncio.Protocol):

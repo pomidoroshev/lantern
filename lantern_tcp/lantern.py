@@ -8,8 +8,8 @@ import time
 
 from xtermcolor import colorize
 
-from settings import HOST, PORT, SLEEPTIME_RECONNECT
-from utils import cmd, TCPClientProtocol
+from .settings import HOST, PORT, SLEEPTIME_RECONNECT
+from .utils import cmd, TCPClientProtocol
 
 
 class LanternProtocol(TCPClientProtocol):
