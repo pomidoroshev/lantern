@@ -15,6 +15,12 @@ class LanternServerProtocol(asyncio.Protocol):
             # Turn on
             bytearray([0x12, 0x00, 0x00]),
 
+            # Unknown command
+            bytearray([0xee, 0x00, 0x00]),
+
+            # Unknown command
+            bytearray([0xee, 0x00, 0x00]),
+
             # Switch color to blue
             bytearray([0x20, 0x00, 0x03, 0x00, 0x00, 0xff]),
 

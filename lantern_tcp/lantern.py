@@ -75,7 +75,7 @@ class Lantern(Manageable):
         if self._is_on:
             print(colorize('\u2B24', rgb=self._color_rgb))
         else:
-            print('\n')
+            print('\u2B55')
 
     @cmd(0x12)
     async def on(self):
@@ -83,7 +83,6 @@ class Lantern(Manageable):
         Turn lantern on
         """
         self._is_on = True
-        print('Lantern is on...')
         self.refresh()
 
     @cmd(0x13)
@@ -92,7 +91,6 @@ class Lantern(Manageable):
         Turn lantern off
         """
         self._is_on = False
-        print('Lantern is off...')
         self.refresh()
 
     @cmd(0x20)
