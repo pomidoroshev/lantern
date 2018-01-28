@@ -8,6 +8,7 @@ import time
 
 from xtermcolor import colorize
 
+from settings import HOST, PORT, SLEEPTIME_RECONNECT
 from utils import cmd, TCPClientProtocol
 
 
@@ -27,7 +28,7 @@ class LanternProtocol(TCPClientProtocol):
     def __init__(self, loop):
         super().__init__(loop)
         self.refresh()
-    
+
     def refresh(self):
         """
         Print new lantern icon with current parameters
@@ -65,9 +66,9 @@ class LanternProtocol(TCPClientProtocol):
 
 def main():
     parser = argparse.ArgumentParser(description='Lantern TCP Client')
-    parser.add_argument('host', type=str, default='127.0.0.1', nargs='?',
+    parser.add_argument('host', type=str, default=HOST, nargs='?',
                         help='Server host, default is %(default)s')
-    parser.add_argument('port', type=int, default=9999, nargs='?',
+    parser.add_argument('port', type=int, default=PORT, nargs='?',
                         help='Server port, default is %(default)s')
     args = parser.parse_args()
 
@@ -80,9 +81,10 @@ def main():
             loop.run_forever()
         except OSError:
             print('Reconnecting in 1 second...')
-            time.sleep(1)
+            time.sleep(SLEEPTIME_RECONNECT)
 
     loop.close()
+
 
 if __name__ == '__main__':
     main()

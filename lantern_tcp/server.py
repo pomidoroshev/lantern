@@ -5,6 +5,8 @@ Demo-server for lantern
 import argparse
 import asyncio
 
+from settings import HOST, PORT
+
 
 class LanternServerProtocol(asyncio.Protocol):
 
@@ -49,9 +51,9 @@ def main():
     loop = asyncio.get_event_loop()
 
     parser = argparse.ArgumentParser(description='Lantern TCP Server')
-    parser.add_argument('host', type=str, default='127.0.0.1', nargs='?',
+    parser.add_argument('host', type=str, default=HOST, nargs='?',
                         help='Server host, default is %(default)s')
-    parser.add_argument('port', type=int, default=9999, nargs='?',
+    parser.add_argument('port', type=int, default=PORT, nargs='?',
                         help='Server port, default is %(default)s')
     args = parser.parse_args()
 
