@@ -4,6 +4,7 @@ Lantern TCP Client
 
 import argparse
 import asyncio
+import time
 
 from xtermcolor import colorize
 
@@ -71,10 +72,16 @@ def main():
     args = parser.parse_args()
 
     loop = asyncio.get_event_loop()
-    coro = loop.create_connection(lambda: LanternProtocol(loop),
-                                  args.host, args.port)
-    loop.run_until_complete(coro)
-    loop.run_forever()
+    while True:
+        try:
+            coro = loop.create_connection(lambda: LanternProtocol(loop),
+                                          args.host, args.port)
+            loop.run_until_complete(coro)
+            loop.run_forever()
+        except OSError:
+            print('Reconnecting in 1 second...')
+            time.sleep(1)
+
     loop.close()
 
 if __name__ == '__main__':
