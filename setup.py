@@ -1,18 +1,4 @@
 from setuptools import setup
-from codecs import open
-import os
-
-here = os.path.abspath(os.path.dirname(__file__))
-
-def get_packages(package):
-    """
-    Return root package and all sub-packages.
-    """
-    p = [dirpath for dirpath, dirnames, filenames in os.walk(package)
-            if os.path.exists(os.path.join(dirpath, '__init__.py'))]
-
-    print('####', p)
-    return p
 
 setup(
     name='lantern-tcp',
