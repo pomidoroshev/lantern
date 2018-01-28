@@ -31,17 +31,22 @@ class LanternServerProtocol(asyncio.Protocol):
         print('Lost connection of', self.peername)
         self.transport.close()
 
-loop = asyncio.get_event_loop()
-coro = loop.create_server(LanternServerProtocol, '127.0.0.1', 9999)
-server = loop.run_until_complete(coro)
 
-print('Serving on', server.sockets[0].getsockname())
+def main():
+    loop = asyncio.get_event_loop()
+    coro = loop.create_server(LanternServerProtocol, '127.0.0.1', 9999)
+    server = loop.run_until_complete(coro)
 
-try:
-    loop.run_forever()
-except KeyboardInterrupt:
-    pass
+    print('Serving on', server.sockets[0].getsockname())
 
-server.close()
-loop.run_until_complete(server.wait_closed())
-loop.close()
+    try:
+        loop.run_forever()
+    except KeyboardInterrupt:
+        pass
+
+    server.close()
+    loop.run_until_complete(server.wait_closed())
+    loop.close()
+
+if __name__ == '__main__':
+    main()

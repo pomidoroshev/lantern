@@ -102,6 +102,11 @@ class Lantern(Manageable):
         self.refresh()
 
 
-loop = asyncio.get_event_loop()
-lantern = Lantern()
-loop.run_until_complete(lantern.listen(loop))
+def main():
+    loop = asyncio.get_event_loop()
+    lantern = Lantern()
+    loop.run_until_complete(lantern.listen(loop))
+
+
+if __name__ == '__main__':
+    main()
