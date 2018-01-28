@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 
 
@@ -34,7 +35,15 @@ class LanternServerProtocol(asyncio.Protocol):
 
 def main():
     loop = asyncio.get_event_loop()
-    coro = loop.create_server(LanternServerProtocol, '127.0.0.1', 9999)
+
+    parser = argparse.ArgumentParser(description='Lantern TCP Server')
+    parser.add_argument('host', type=str, default='127.0.0.1', nargs='?',
+                        help='Server host, default is %(default)s')
+    parser.add_argument('port', type=int, default=9999, nargs='?',
+                        help='Server port, default is %(default)s')
+    args = parser.parse_args()
+
+    coro = loop.create_server(LanternServerProtocol, args.host, args.port)
     server = loop.run_until_complete(coro)
 
     print('Serving on', server.sockets[0].getsockname())

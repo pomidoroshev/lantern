@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 from collections import defaultdict
 from functools import wraps
@@ -22,11 +23,11 @@ def cmd(code):
 
 class Manageable:
 
-    async def listen(self, loop):
+    async def listen(self, host, port, *, loop):
         """
         Connect to server and listen to commands
         """
-        reader, _ = await asyncio.open_connection('127.0.0.1', 9999, loop=loop)
+        reader, _ = await asyncio.open_connection(host, port, loop=loop)
         while True:
             await self.execute_command(reader)
 
@@ -66,7 +67,10 @@ class Lantern(Manageable):
     def __init__(self, is_on=True, color=0xff0000):
         self._is_on = is_on
         self._color_rgb = color
+
+    async def listen(self, *args, **kwargs):
         self.refresh()
+        await super().listen(*args, **kwargs)
 
     def refresh(self):
         if self._is_on:
@@ -105,7 +109,14 @@ class Lantern(Manageable):
 def main():
     loop = asyncio.get_event_loop()
     lantern = Lantern()
-    loop.run_until_complete(lantern.listen(loop))
+
+    parser = argparse.ArgumentParser(description='Lantern TCP Client')
+    parser.add_argument('host', type=str, default='127.0.0.1', nargs='?',
+                        help='Server host, default is %(default)s')
+    parser.add_argument('port', type=int, default=9999, nargs='?',
+                        help='Server port, default is %(default)s')
+    args = parser.parse_args()
+    loop.run_until_complete(lantern.listen(args.host, args.port, loop=loop))
 
 
 if __name__ == '__main__':

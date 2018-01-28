@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='lantern-tcp',
-    version='0.0.1',
+    version='0.0.2',
     description='Lantern TCP client and simple server',
     classifiers=[
         'Programming Language :: Python :: 3.6',
