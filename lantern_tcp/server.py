@@ -1,9 +1,17 @@
+"""
+Demo-server for lantern
+"""
+
 import argparse
 import asyncio
 
 
 class LanternServerProtocol(asyncio.Protocol):
+
     def connection_made(self, transport):
+        """
+        Wait for lantern connection and send some commands
+        """
         self.transport = transport
         self.peername = transport.get_extra_info('peername')
         print('Connection from', self.peername)

@@ -1,66 +1,23 @@
+"""
+Lantern TCP Client
+"""
+
 import argparse
 import asyncio
-from collections import defaultdict
 
 from xtermcolor import colorize
 
-
-def cmd(code):
-    """
-    Collect commands from class methods
-    """
-    if not hasattr(cmd, 'commands'):
-        cmd.commands = defaultdict(dict)
-
-    def _cmd(fn):
-        classname = fn.__qualname__.split('.')[0]
-        cmd.commands[classname][code] = fn
-        return fn
-
-    return _cmd
-
-
-class Manageable:
-
-    async def listen(self, host, port, *, loop):
-        """
-        Connect to server and listen to commands
-        """
-        reader, _ = await asyncio.open_connection(host, port, loop=loop)
-        while True:
-            await self.execute_command(reader)
-
-    async def execute_command(self, reader):
-        """
-        Execute class command
-        """
-        type_, value = await self.get_tlv(reader)
-        command_code = ord(type_)
-        class_commands = cmd.commands[self.__class__.__name__]
-        if command_code in class_commands:
-            method = class_commands[command_code]
-            args = []
-            if value is not None:
-                args.append(value)
-            await method(self, *args)
-
-    async def get_tlv(self, reader):
-        """
-        Parse TLV-command and get type and value
-        """
-        type_ = await reader.read(1)
-        if type_:
-            value = None
-            length = await reader.read(2)
-            length = int.from_bytes(length, byteorder='big')
-            if length > 0:
-                value = await reader.read(length)
-            return type_, value
+from utils import cmd, Manageable
 
 
 class Lantern(Manageable):
     """
-    Lantern class
+    Lantern class with set of commands:
+    0x12 - turn lantern on
+    0x13 - turn lantern off
+    0x20 - change lantern color
+
+    Lantern is on and red by default
     """
 
     def __init__(self, is_on=True, color=0xff0000):
@@ -68,10 +25,16 @@ class Lantern(Manageable):
         self._color_rgb = color
 
     async def listen(self, *args, **kwargs):
+        """
+        Show current lantern state berore listen
+        """
         self.refresh()
         await super().listen(*args, **kwargs)
 
     def refresh(self):
+        """
+        Print new lantern icon with current parameters
+        """
         if self._is_on:
             print(colorize('\u2B24', rgb=self._color_rgb))
         else:
@@ -96,7 +59,7 @@ class Lantern(Manageable):
     @cmd(0x20)
     async def color(self, value: bytes):
         """
-        Switch lantern color
+        Change lantern color
         """
         value = int.from_bytes(value, byteorder='big')
         self._color_rgb = value
