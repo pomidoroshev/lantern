@@ -1,6 +1,6 @@
 import asyncio
-
 from collections import defaultdict
+import struct
 
 
 def cmd(code):
@@ -38,15 +38,16 @@ class TCPClientProtocol(asyncio.Protocol):
             tmp = data[start:]
             if not tmp:
                 break
-            command_code = tmp[0]
-            value = None
-
-            length = tmp[1:3]
-            length = int.from_bytes(length, byteorder='big')
-            if length > 0:
-                value = tmp[3:length+3]
-            yield command_code, value
-            start += length + 3
+            
+            try:
+                command_code, length = struct.unpack('>BH', tmp[:3])
+                value = None
+                if length > 0:
+                    value = struct.unpack(f'>{length}s', tmp[3:length+3])[0]
+                yield command_code, value
+                start += length + 3
+            except struct.error:
+                break
 
     def execute(self, command_code, value):
         """
